@@ -18,7 +18,7 @@ package com.amazonaws.geo;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
 public class GeoDataManagerConfiguration {
 
@@ -49,11 +49,11 @@ public class GeoDataManagerConfiguration {
 
 	private int hashKeyLength;
 
-	private AmazonDynamoDBClient dynamoDBClient;
+	private DynamoDbClient dynamoDBClient;
 
 	private ExecutorService executorService;
 
-	public GeoDataManagerConfiguration(AmazonDynamoDBClient dynamoDBClient, String tableName) {
+	public GeoDataManagerConfiguration(DynamoDbClient dynamoDBClient, String tableName) {
 		hashKeyAttributeName = DEFAULT_HASHKEY_ATTRIBUTE_NAME;
 		rangeKeyAttributeName = DEFAULT_RANGEKEY_ATTRIBUTE_NAME;
 		geohashAttributeName = DEFAULT_GEOHASH_ATTRIBUTE_NAME;
@@ -153,11 +153,11 @@ public class GeoDataManagerConfiguration {
 		return this;
 	}
 
-	public AmazonDynamoDBClient getDynamoDBClient() {
+	public DynamoDbClient getDynamoDBClient() {
 		return dynamoDBClient;
 	}
 
-	public void setDynamoDBClient(AmazonDynamoDBClient dynamoDBClient) {
+	public void setDynamoDBClient(DynamoDbClient dynamoDBClient) {
 		this.dynamoDBClient = dynamoDBClient;
 	}
 

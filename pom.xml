@@ -1,19 +1,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.amazonaws</groupId>
-	<artifactId>dynamodb-geo</artifactId>
+	<groupId>com.ontometrics</groupId>
+	<artifactId>dynamodb-geo-aws-sdk-2</artifactId>
 	<packaging>jar</packaging>
-	<name>Amazon DynamoDB Geo on the AWS SDK for Java</name>
+	<name>Amazon DynamoDB Geo on the AWS SDK 2.x for Java</name>
 	<version>1.0.0</version>
-	<description>Geo Library for Amazon DynamoDB provides methods to create, retrieve, 
+	<description>Port of Geo Library (to AWS SDK 2.x) for Amazon DynamoDB provides methods to create, retrieve,
 	and query for geo-spatial data records in Amazon DynamoDB tables.
 	</description>
 	<url>https://aws.amazon.com/dynamodb</url>
-
-	<scm>
-		<url>ssh://git.amazon.com:2222/pkg/GeoForDynamoDB</url>
-	</scm>
 
 	<licenses>
 		<license>
@@ -23,27 +19,19 @@
 		</license>
 	</licenses>
 
-	<properties>
-		<aws-java-sdk.version>1.5.5</aws-java-sdk.version>
-	</properties>
-
 	<dependencies>
-		<!-- The AWS SDK for Java, and its dependencies on libraries like Jackson, 
+		<!-- The AWS SDK for Java, and its dependencies on libraries like Jackson,
 			are required -->
 		<dependency>
-			<groupId>com.amazonaws</groupId>
-			<artifactId>aws-java-sdk</artifactId>
-			<version>${aws-java-sdk.version}</version>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>dynamodb</artifactId>
+			<version>[2.17.240, 3.0)</version>
 		</dependency>
-
-		<!-- JUnit is needed to compile the integration test classes -->
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.11</version>
-			<optional>true</optional>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>[2.12.0, 3.0)</version>
 		</dependency>
-
 		<dependency>
 			<groupId>com.google.common.geometry</groupId>
 			<artifactId>s2-geometry-java</artifactId>
@@ -81,29 +69,23 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
 					<configuration>
-						<source>1.6</source>
-						<target>1.6</target>
+						<source>1.8</source>
+						<target>1.8</target>
 						<encoding>UTF-8</encoding>
 					</configuration>
 				</plugin>
 			</plugins>
 		</pluginManagement>
 
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-gpg-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>sign-artifacts</id>
-						<phase>verify</phase>
-						<goals>
-							<goal>sign</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
 	</build>
+
+
+	<distributionManagement>
+		<repository>
+			<id>dynamodb-geo-aws-sdk-2</id>
+			<name>GitHub Packages</name>
+			<url>https://maven.pkg.github.com/eHawk-Inc/dynamodb-geo-aws-sdk-2</url>
+		</repository>
+	</distributionManagement>
 
 </project>
