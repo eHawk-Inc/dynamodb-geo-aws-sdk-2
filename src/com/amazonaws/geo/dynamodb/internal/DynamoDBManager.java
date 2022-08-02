@@ -1,12 +1,12 @@
 /*
  * Copyright 2010-2013 Amazon.com, Inc. or its affiliates. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
  * A copy of the License is located at
- * 
+ *
  *  http://aws.amazon.com/apache2.0
- * 
+ *
  * or in the "license" file accompanying this file. This file is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
  * express or implied. See the License for the specific language governing
@@ -37,13 +37,13 @@ public class DynamoDBManager {
 
 	/**
 	 * Query Amazon DynamoDB
-	 * 
+	 *
 	 * @param hashKey
 	 *            Hash key for the query request.
-	 * 
+	 *
 	 * @param range
 	 *            The range of geohashs to query.
-	 * 
+	 *
 	 * @return The query result.
 	 */
 	public List<QueryResponse> queryGeohash(long hashKey, GeohashRange range) {
@@ -72,7 +72,7 @@ public class DynamoDBManager {
 			QueryResponse queryResult = config.getDynamoDBClient().query(queryRequest);
 			queryResults.add(queryResult);
 
-			lastEvaluatedKey = queryResult.lastEvaluatedKey();
+			lastEvaluatedKey = queryResult.hasLastEvaluatedKey() ? queryResult.lastEvaluatedKey() : null;
 
 		} while (lastEvaluatedKey != null);
 
@@ -84,11 +84,11 @@ public class DynamoDBManager {
 		long hashKey = S2Manager.generateHashKey(geohash, config.getHashKeyLength());
 		String geoJson = GeoJsonMapper.stringFromGeoObject(putPointRequest.getGeoPoint());
 
-		PutItemRequest.Builder putItemRequestBuilder = putPointRequest.getPutItemRequestBuilder();
-		putItemRequestBuilder.tableName(config.getTableName());
+		PutItemRequest request = putPointRequest.getPutItemRequestBuilder().build();
+		Map <String, AttributeValue> itemAttributes = request.item();
+		Map<String, AttributeValue> item = itemAttributes != null ? new HashMap<>(itemAttributes) : new HashMap<>();
 
 		AttributeValue hashKeyValue = AttributeValue.fromN(String.valueOf(hashKey));
-		Map<String, AttributeValue> item = new HashMap<>();
 		item.put(config.getHashKeyAttributeName(), hashKeyValue);
 		item.put(config.getRangeKeyAttributeName(), putPointRequest.getRangeKeyValue());
 		AttributeValue geohashValue = AttributeValue.fromN(Long.toString(geohash));
@@ -96,9 +96,10 @@ public class DynamoDBManager {
 		AttributeValue geoJsonValue = AttributeValue.fromS(geoJson);
 		item.put(config.getGeoJsonAttributeName(), geoJsonValue);
 
-		putItemRequestBuilder.item(item);
-
-		PutItemResponse putItemResult = config.getDynamoDBClient().putItem(putItemRequestBuilder.build());
+		PutItemRequest requestToExecute = request.copy(builder ->
+				builder.tableName(config.getTableName()).item(item)
+		);
+		PutItemResponse putItemResult = config.getDynamoDBClient().putItem(requestToExecute);
 
 		return new PutPointResult(putItemResult);
 	}

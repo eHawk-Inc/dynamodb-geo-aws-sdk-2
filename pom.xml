@@ -5,7 +5,7 @@
 	<artifactId>dynamodb-geo-aws-sdk-2</artifactId>
 	<packaging>jar</packaging>
 	<name>Amazon DynamoDB Geo on the AWS SDK 2.x for Java</name>
-	<version>1.0.0</version>
+	<version>1.0.3</version>
 	<description>Port of Geo Library (to AWS SDK 2.x) for Amazon DynamoDB provides methods to create, retrieve,
 	and query for geo-spatial data records in Amazon DynamoDB tables.
 	</description>
