@@ -18,7 +18,6 @@ package com.amazonaws.geo.s2.internal;
 import com.amazonaws.geo.model.GeoPoint;
 import com.amazonaws.geo.model.GeoQueryRequest;
 import com.amazonaws.geo.model.QueryRadiusRequest;
-import com.amazonaws.geo.model.QueryRectangleRequest;
 import com.google.common.geometry.S2LatLng;
 import com.google.common.geometry.S2LatLngRect;
 
@@ -32,23 +31,7 @@ public class S2Util {
 	 * 
 	 * */
 	public static S2LatLngRect getBoundingLatLngRect(GeoQueryRequest geoQueryRequest) {
-		if (geoQueryRequest instanceof QueryRectangleRequest) {
-			QueryRectangleRequest queryRectangleRequest = (QueryRectangleRequest) geoQueryRequest;
-
-			GeoPoint minPoint = queryRectangleRequest.getMinPoint();
-			GeoPoint maxPoint = queryRectangleRequest.getMaxPoint();
-
-			S2LatLngRect latLngRect = null;
-
-			if (minPoint != null && maxPoint != null) {
-				S2LatLng minLatLng = S2LatLng.fromDegrees(minPoint.getLatitude(), minPoint.getLongitude());
-				S2LatLng maxLatLng = S2LatLng.fromDegrees(maxPoint.getLatitude(), maxPoint.getLongitude());
-
-				latLngRect = new S2LatLngRect(minLatLng, maxLatLng);
-			}
-
-			return latLngRect;
-		} else if (geoQueryRequest instanceof QueryRadiusRequest) {
+		if (geoQueryRequest instanceof QueryRadiusRequest) {
 			QueryRadiusRequest queryRadiusRequest = (QueryRadiusRequest) geoQueryRequest;
 
 			GeoPoint centerPoint = queryRadiusRequest.getCenterPoint();

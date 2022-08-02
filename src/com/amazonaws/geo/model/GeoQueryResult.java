@@ -20,16 +20,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.amazonaws.services.dynamodbv2.model.QueryResult;
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
+import software.amazon.awssdk.services.dynamodb.model.QueryResponse;
 
 public class GeoQueryResult extends GeoDataResult {
 	private List<Map<String, AttributeValue>> item;
-	private List<QueryResult> queryResults;
+	private List<QueryResponse> queryResults;
 
 	public GeoQueryResult() {
 		item = Collections.synchronizedList(new ArrayList<Map<String, AttributeValue>>());
-		queryResults = Collections.synchronizedList(new ArrayList<QueryResult>());
+		queryResults = Collections.synchronizedList(new ArrayList<QueryResponse>());
 	}
 
 	public GeoQueryResult(GeoQueryResult geoQueryResult) {
@@ -43,7 +43,7 @@ public class GeoQueryResult extends GeoDataResult {
 		return item;
 	}
 
-	public List<QueryResult> getQueryResults() {
+	public List<QueryResponse> getQueryResults() {
 		return queryResults;
 	}
 }

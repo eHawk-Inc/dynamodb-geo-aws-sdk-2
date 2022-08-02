@@ -15,42 +15,23 @@
 
 package com.amazonaws.geo;
 
+import com.amazonaws.geo.dynamodb.internal.DynamoDBManager;
+import com.amazonaws.geo.model.*;
+import com.amazonaws.geo.s2.internal.S2Manager;
+import com.amazonaws.geo.s2.internal.S2Util;
+import com.amazonaws.geo.util.GeoJsonMapper;
+import com.google.common.geometry.S2CellId;
+import com.google.common.geometry.S2CellUnion;
+import com.google.common.geometry.S2LatLng;
+import com.google.common.geometry.S2LatLngRect;
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
+import software.amazon.awssdk.services.dynamodb.model.QueryResponse;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-
-import com.amazonaws.AmazonClientException;
-import com.amazonaws.geo.dynamodb.internal.DynamoDBManager;
-import com.amazonaws.geo.dynamodb.internal.DynamoDBUtil;
-import com.amazonaws.geo.model.BatchWritePointResult;
-import com.amazonaws.geo.model.DeletePointRequest;
-import com.amazonaws.geo.model.DeletePointResult;
-import com.amazonaws.geo.model.GeoPoint;
-import com.amazonaws.geo.model.GeoQueryRequest;
-import com.amazonaws.geo.model.GeoQueryResult;
-import com.amazonaws.geo.model.GeohashRange;
-import com.amazonaws.geo.model.GetPointRequest;
-import com.amazonaws.geo.model.GetPointResult;
-import com.amazonaws.geo.model.PutPointRequest;
-import com.amazonaws.geo.model.PutPointResult;
-import com.amazonaws.geo.model.QueryRadiusRequest;
-import com.amazonaws.geo.model.QueryRadiusResult;
-import com.amazonaws.geo.model.QueryRectangleRequest;
-import com.amazonaws.geo.model.QueryRectangleResult;
-import com.amazonaws.geo.model.UpdatePointRequest;
-import com.amazonaws.geo.model.UpdatePointResult;
-import com.amazonaws.geo.s2.internal.S2Manager;
-import com.amazonaws.geo.s2.internal.S2Util;
-import com.amazonaws.geo.util.GeoJsonMapper;
-import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.amazonaws.services.dynamodbv2.model.QueryRequest;
-import com.amazonaws.services.dynamodbv2.model.QueryResult;
-import com.google.common.geometry.S2CellId;
-import com.google.common.geometry.S2CellUnion;
-import com.google.common.geometry.S2LatLng;
-import com.google.common.geometry.S2LatLngRect;
 
 /**
  * <p>
@@ -73,7 +54,7 @@ public class GeoDataManager {
 	 * <b>Sample usage:</b>
 	 * 
 	 * <pre>
-	 * AmazonDynamoDBClient ddb = new AmazonDynamoDBClient(new ClasspathPropertiesFileCredentialsProvider());
+	 * DynamoDbClient ddb = new DynamoDbClient(new ClasspathPropertiesFileCredentialsProvider());
 	 * Region usWest2 = Region.getRegion(Regions.US_WEST_2);
 	 * ddb.setRegion(usWest2);
 	 * 
@@ -114,8 +95,8 @@ public class GeoDataManager {
 	 * 
 	 * <pre>
 	 * GeoPoint geoPoint = new GeoPoint(47.5, -122.3);
-	 * AttributeValue rangeKeyValue = new AttributeValue().withS(&quot;a6feb446-c7f2-4b48-9b3a-0f87744a5047&quot;);
-	 * AttributeValue titleValue = new AttributeValue().withS(&quot;Original title&quot;);
+	 * AttributeValue rangeKeyValue = AttributeValue.fromS(&quot;a6feb446-c7f2-4b48-9b3a-0f87744a5047&quot;);
+	 * AttributeValue titleValue = AttributeValue.fromS(&quot;Original title&quot;);
 	 * 
 	 * PutPointRequest putPointRequest = new PutPointRequest(geoPoint, rangeKeyValue);
 	 * putPointRequest.getPutItemRequest().getItem().put(&quot;title&quot;, titleValue);
@@ -132,95 +113,6 @@ public class GeoDataManager {
 		return dynamoDBManager.putPoint(putPointRequest);
 	}
 	
-	/**
-	 * <p>
-	 * Put a list of points into the Amazon DynamoDB table. Once put, you cannot update attributes specified in
-	 * GeoDataManagerConfiguration: hash key, range key, geohash and geoJson. If you want to update these columns, you
-	 * need to insert a new record and delete the old record.
-	 * </p>
-	 * <b>Sample usage:</b>
-	 * 
-	 * <pre>
-	 * GeoPoint geoPoint = new GeoPoint(47.5, -122.3);
-	 * AttributeValue rangeKeyValue = new AttributeValue().withS(&quot;a6feb446-c7f2-4b48-9b3a-0f87744a5047&quot;);
-	 * AttributeValue titleValue = new AttributeValue().withS(&quot;Original title&quot;);
-	 * 
-	 * PutPointRequest putPointRequest = new PutPointRequest(geoPoint, rangeKeyValue);
-	 * putPointRequest.getPutItemRequest().getItem().put(&quot;title&quot;, titleValue);
-	 * List<PutPointRequest> putPointRequests = new ArrayList<PutPointRequest>();
-	 * putPointRequests.add(putPointRequest);
-	 * BatchWritePointResult batchWritePointResult = geoDataManager.batchWritePoints(putPointRequests);
-	 * </pre>
-	 * 
-	 * @param putPointRequests
-	 *            Container for the necessary parameters to execute put point request.
-	 * 
-	 * @return Result of batch put point request.
-	 */	
-	public BatchWritePointResult batchWritePoints(List<PutPointRequest> putPointRequests) {
-		return dynamoDBManager.batchWritePoints(putPointRequests);
-	}
-
-	/**
-	 * <p>
-	 * Get a point from the Amazon DynamoDB table.
-	 * </p>
-	 * <b>Sample usage:</b>
-	 * 
-	 * <pre>
-	 * GeoPoint geoPoint = new GeoPoint(47.5, -122.3);
-	 * AttributeValue rangeKeyValue = new AttributeValue().withS(&quot;a6feb446-c7f2-4b48-9b3a-0f87744a5047&quot;);
-	 * 
-	 * GetPointRequest getPointRequest = new GetPointRequest(geoPoint, rangeKeyValue);
-	 * GetPointResult getPointResult = geoIndexManager.getPoint(getPointRequest);
-	 * 
-	 * System.out.println(&quot;item: &quot; + getPointResult.getGetItemResult().getItem());
-	 * </pre>
-	 * 
-	 * @param getPointRequest
-	 *            Container for the necessary parameters to execute get point request.
-	 * 
-	 * @return Result of get point request.
-	 * */
-	public GetPointResult getPoint(GetPointRequest getPointRequest) {
-		return dynamoDBManager.getPoint(getPointRequest);
-	}
-
-	/**
-	 * <p>
-	 * Query a rectangular area constructed by two points and return all points within the area. Two points need to
-	 * construct a rectangle from minimum and maximum latitudes and longitudes. If minPoint.getLongitude() >
-	 * maxPoint.getLongitude(), the rectangle spans the 180 degree longitude line.
-	 * </p>
-	 * <b>Sample usage:</b>
-	 * 
-	 * <pre>
-	 * GeoPoint minPoint = new GeoPoint(45.5, -124.3);
-	 * GeoPoint maxPoint = new GeoPoint(49.5, -120.3);
-	 * 
-	 * QueryRectangleRequest queryRectangleRequest = new QueryRectangleRequest(minPoint, maxPoint);
-	 * QueryRectangleResult queryRectangleResult = geoIndexManager.queryRectangle(queryRectangleRequest);
-	 * 
-	 * for (Map&lt;String, AttributeValue&gt; item : queryRectangleResult.getItem()) {
-	 * 	System.out.println(&quot;item: &quot; + item);
-	 * }
-	 * </pre>
-	 * 
-	 * @param queryRectangleRequest
-	 *            Container for the necessary parameters to execute rectangle query request.
-	 * 
-	 * @return Result of rectangle query request.
-	 */
-	public QueryRectangleResult queryRectangle(QueryRectangleRequest queryRectangleRequest) {
-		S2LatLngRect latLngRect = S2Util.getBoundingLatLngRect(queryRectangleRequest);
-
-		S2CellUnion cellUnion = S2Manager.findCellIds(latLngRect);
-
-		List<GeohashRange> ranges = mergeCells(cellUnion);
-		cellUnion = null;
-
-		return new QueryRectangleResult(dispatchQueries(ranges, queryRectangleRequest));
-	}
 
 	/**
 	 * <p>
@@ -253,64 +145,6 @@ public class GeoDataManager {
 		cellUnion = null;
 
 		return new QueryRadiusResult(dispatchQueries(ranges, queryRadiusRequest));
-	}
-
-	/**
-	 * <p>
-	 * Update a point data in Amazon DynamoDB table. You cannot update attributes specified in
-	 * GeoDataManagerConfiguration: hash key, range key, geohash and geoJson. If you want to update these columns, you
-	 * need to insert a new record and delete the old record.
-	 * </p>
-	 * <b>Sample usage:</b>
-	 * 
-	 * <pre>
-	 * GeoPoint geoPoint = new GeoPoint(47.5, -122.3);
-	 * 
-	 * String rangeKey = &quot;a6feb446-c7f2-4b48-9b3a-0f87744a5047&quot;;
-	 * AttributeValue rangeKeyValue = new AttributeValue().withS(rangeKey);
-	 * 
-	 * UpdatePointRequest updatePointRequest = new UpdatePointRequest(geoPoint, rangeKeyValue);
-	 * 
-	 * AttributeValue titleValue = new AttributeValue().withS(&quot;Updated title.&quot;);
-	 * AttributeValueUpdate titleValueUpdate = new AttributeValueUpdate().withAction(AttributeAction.PUT)
-	 * 		.withValue(titleValue);
-	 * updatePointRequest.getUpdateItemRequest().getAttributeUpdates().put(&quot;title&quot;, titleValueUpdate);
-	 * 
-	 * UpdatePointResult updatePointResult = geoIndexManager.updatePoint(updatePointRequest);
-	 * </pre>
-	 * 
-	 * @param updatePointRequest
-	 *            Container for the necessary parameters to execute update point request.
-	 * 
-	 * @return Result of update point request.
-	 */
-	public UpdatePointResult updatePoint(UpdatePointRequest updatePointRequest) {
-		return dynamoDBManager.updatePoint(updatePointRequest);
-	}
-
-	/**
-	 * <p>
-	 * Delete a point from the Amazon DynamoDB table.
-	 * </p>
-	 * <b>Sample usage:</b>
-	 * 
-	 * <pre>
-	 * GeoPoint geoPoint = new GeoPoint(47.5, -122.3);
-	 * 
-	 * String rangeKey = &quot;a6feb446-c7f2-4b48-9b3a-0f87744a5047&quot;;
-	 * AttributeValue rangeKeyValue = new AttributeValue().withS(rangeKey);
-	 * 
-	 * DeletePointRequest deletePointRequest = new DeletePointRequest(geoPoint, rangeKeyValue);
-	 * DeletePointResult deletePointResult = geoIndexManager.deletePoint(deletePointRequest);
-	 * </pre>
-	 * 
-	 * @param deletePointRequest
-	 *            Container for the necessary parameters to execute delete point request.
-	 * 
-	 * @return Result of delete point request.
-	 */
-	public DeletePointResult deletePoint(DeletePointRequest deletePointRequest) {
-		return dynamoDBManager.deletePoint(deletePointRequest);
 	}
 
 	/**
@@ -349,9 +183,6 @@ public class GeoDataManager {
 	 * @param ranges
 	 *            A list of geohash ranges that will be used to query Amazon DynamoDB.
 	 * 
-	 * @param latLngRect
-	 *            The rectangle area that will be used as a reference point for precise filtering.
-	 * 
 	 * @return Aggregated and filtered items returned from Amazon DynamoDB.
 	 */
 	private GeoQueryResult dispatchQueries(List<GeohashRange> ranges, GeoQueryRequest geoQueryRequest) {
@@ -375,7 +206,7 @@ public class GeoDataManager {
 				for (int j = i + 1; j < futureList.size(); j++) {
 					futureList.get(j).cancel(true);
 				}
-				throw new AmazonClientException("Querying Amazon DynamoDB failed.", e);
+				throw new RuntimeException("Querying Amazon DynamoDB failed.", e);
 			}
 		}
 		futureList = null;
@@ -389,22 +220,18 @@ public class GeoDataManager {
 	 * @param list
 	 *            List of items return by Amazon DynamoDB. It may contains points outside of the actual area queried.
 	 * 
-	 * @param latLngRect
-	 *            Queried area. Any points outside of this area need to be discarded.
-	 * 
+	 *
 	 * @return List of items within the queried area.
 	 */
 	private List<Map<String, AttributeValue>> filter(List<Map<String, AttributeValue>> list,
-			GeoQueryRequest geoQueryRequest) {
+													 GeoQueryRequest geoQueryRequest) {
 
-		List<Map<String, AttributeValue>> result = new ArrayList<Map<String, AttributeValue>>();
+		List<Map<String, AttributeValue>> result = new ArrayList<>();
 
 		S2LatLngRect latLngRect = null;
 		S2LatLng centerLatLng = null;
 		double radiusInMeter = 0;
-		if (geoQueryRequest instanceof QueryRectangleRequest) {
-			latLngRect = S2Util.getBoundingLatLngRect(geoQueryRequest);
-		} else if (geoQueryRequest instanceof QueryRadiusRequest) {
+		if (geoQueryRequest instanceof QueryRadiusRequest) {
 			GeoPoint centerPoint = ((QueryRadiusRequest) geoQueryRequest).getCenterPoint();
 			centerLatLng = S2LatLng.fromDegrees(centerPoint.getLatitude(), centerPoint.getLongitude());
 
@@ -412,7 +239,7 @@ public class GeoDataManager {
 		}
 
 		for (Map<String, AttributeValue> item : list) {
-			String geoJson = item.get(config.getGeoJsonAttributeName()).getS();
+			String geoJson = item.get(config.getGeoJsonAttributeName()).s();
 			GeoPoint geoPoint = GeoJsonMapper.geoPointFromString(geoJson);
 
 			S2LatLng latLng = S2LatLng.fromDegrees(geoPoint.getLatitude(), geoPoint.getLongitude());
@@ -442,12 +269,11 @@ public class GeoDataManager {
 		}
 
 		public void run() {
-			QueryRequest queryRequest = DynamoDBUtil.copyQueryRequest(geoQueryRequest.getQueryRequest());
 			long hashKey = S2Manager.generateHashKey(range.getRangeMin(), config.getHashKeyLength());
 
-			List<QueryResult> queryResults = dynamoDBManager.queryGeohash(queryRequest, hashKey, range);
+			List<QueryResponse> queryResults = dynamoDBManager.queryGeohash(hashKey, range);
 
-			for (QueryResult queryResult : queryResults) {
+			for (QueryResponse queryResult : queryResults) {
 				if (isInterrupted()) {
 					return;
 				}
@@ -455,7 +281,7 @@ public class GeoDataManager {
 				// getQueryResults() returns a synchronized list.
 				geoQueryResult.getQueryResults().add(queryResult);
 
-				List<Map<String, AttributeValue>> filteredQueryResult = filter(queryResult.getItems(), geoQueryRequest);
+				List<Map<String, AttributeValue>> filteredQueryResult = filter(queryResult.items(), geoQueryRequest);
 
 				// getItem() returns a synchronized list.
 				geoQueryResult.getItem().addAll(filteredQueryResult);
