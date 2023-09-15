@@ -15,28 +15,33 @@
 
 package com.amazonaws.geo.util;
 
-import java.io.IOException;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import com.amazonaws.geo.model.GeoObject;
 import com.amazonaws.geo.model.GeoPoint;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class GeoJsonMapper {
-	private static ObjectMapper mapper = new ObjectMapper();
 
 	public static GeoPoint geoPointFromString(String jsonString) {
 		try {
-			return mapper.readValue(jsonString, GeoPoint.class);
-		} catch (IOException e) {
+			final JSONObject object = new JSONObject(jsonString);
+			final JSONArray coordinates = object.getJSONArray("coordinates");
+			return new GeoPoint(coordinates.getDouble(0), coordinates.getDouble(1));
+		} catch (JSONException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	public static String stringFromGeoObject(GeoObject geoObject) {
+	public static String stringFromGeoObject(GeoPoint geoObject) {
 		try {
-			return mapper.writeValueAsString(geoObject);
-		} catch (IOException e) {
+			JSONObject jsonObject = new JSONObject();
+			final JSONArray coordinates = new JSONArray();
+			coordinates.put(0, geoObject.getLatitude());
+			coordinates.put(1, geoObject.getLongitude());
+			jsonObject.put("coordinates", coordinates);
+			jsonObject.put("type", geoObject.getType());
+			return jsonObject.toString();
+		} catch (JSONException e) {
 			throw new RuntimeException(e);
 		}
 	}
