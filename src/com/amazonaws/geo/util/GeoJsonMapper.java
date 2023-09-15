@@ -39,7 +39,6 @@ public class GeoJsonMapper {
 			coordinates.put(0, geoObject.getLatitude());
 			coordinates.put(1, geoObject.getLongitude());
 			jsonObject.put("coordinates", coordinates);
-			jsonObject.put("type", geoObject.getType());
 			return jsonObject.toString();
 		} catch (JSONException e) {
 			throw new RuntimeException(e);
