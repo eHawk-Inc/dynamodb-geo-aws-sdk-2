@@ -16,8 +16,6 @@
 package com.amazonaws.geo.model;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 public class GeoPoint extends GeoObject {
 
 	protected double[] coordinates;
@@ -31,12 +29,10 @@ public class GeoPoint extends GeoObject {
 		setCoordinates(new double[] { latitude, longitude });
 	}
 
-	@JsonIgnore
 	public double getLatitude() {
 		return coordinates[0];
 	}
 
-	@JsonIgnore
 	public double getLongitude() {
 		return coordinates[1];
 	}

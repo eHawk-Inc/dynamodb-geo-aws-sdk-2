@@ -31,12 +31,18 @@ public class PutPointRequest extends GeoDataRequest {
 	private PutItemRequest.Builder putItemRequestBuilder;
 	private GeoPoint geoPoint;
 	private AttributeValue rangeKeyValue;
+	private final String hashKeyPrefix;
 
-	public PutPointRequest(GeoPoint geoPoint, AttributeValue rangeKeyValue) {
+	public PutPointRequest(GeoPoint geoPoint, AttributeValue rangeKeyValue, String prefix) {
 		putItemRequestBuilder = PutItemRequest.builder();
 
 		this.geoPoint = geoPoint;
 		this.rangeKeyValue = rangeKeyValue;
+		this.hashKeyPrefix = prefix;
+	}
+
+	public PutPointRequest(GeoPoint geoPoint, AttributeValue rangeKeyValue) {
+		this(geoPoint, rangeKeyValue, null);
 	}
 
 	public PutItemRequest.Builder getPutItemRequestBuilder() {
@@ -50,5 +56,8 @@ public class PutPointRequest extends GeoDataRequest {
 	public AttributeValue getRangeKeyValue() {
 		return rangeKeyValue;
 	}
-	
+
+	public String getHashKeyPrefix() {
+		return hashKeyPrefix;
+	}
 }

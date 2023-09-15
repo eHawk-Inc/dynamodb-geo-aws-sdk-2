@@ -185,7 +185,7 @@ public class GeoDataManager {
 	 * 
 	 * @return Aggregated and filtered items returned from Amazon DynamoDB.
 	 */
-	private GeoQueryResult dispatchQueries(List<GeohashRange> ranges, GeoQueryRequest geoQueryRequest) {
+	private GeoQueryResult dispatchQueries(List<GeohashRange> ranges, QueryRadiusRequest geoQueryRequest) {
 		GeoQueryResult geoQueryResult = new GeoQueryResult();
 
 		ExecutorService executorService = config.getExecutorService();
@@ -258,11 +258,11 @@ public class GeoDataManager {
 	 * Worker thread to query Amazon DynamoDB.
 	 * */
 	private class GeoQueryThread extends Thread {
-		private GeoQueryRequest geoQueryRequest;
+		private QueryRadiusRequest geoQueryRequest;
 		private GeoQueryResult geoQueryResult;
 		private GeohashRange range;
 
-		public GeoQueryThread(GeoQueryRequest geoQueryRequest, GeoQueryResult geoQueryResult, GeohashRange range) {
+		public GeoQueryThread(QueryRadiusRequest geoQueryRequest, GeoQueryResult geoQueryResult, GeohashRange range) {
 			this.geoQueryRequest = geoQueryRequest;
 			this.geoQueryResult = geoQueryResult;
 			this.range = range;
@@ -271,7 +271,7 @@ public class GeoDataManager {
 		public void run() {
 			long hashKey = S2Manager.generateHashKey(range.getRangeMin(), config.getHashKeyLength());
 
-			List<QueryResponse> queryResults = dynamoDBManager.queryGeohash(hashKey, range);
+			List<QueryResponse> queryResults = dynamoDBManager.queryGeohash(hashKey, range, geoQueryRequest.getHashKeyPrefix());
 
 			for (QueryResponse queryResult : queryResults) {
 				if (isInterrupted()) {

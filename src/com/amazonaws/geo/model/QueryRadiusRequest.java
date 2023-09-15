@@ -19,9 +19,16 @@ public class QueryRadiusRequest extends GeoQueryRequest {
 	private GeoPoint centerPoint;
 	private double radiusInMeter;
 
-	public QueryRadiusRequest(GeoPoint centerPoint, double radiusInMeter) {
+	private final String hashKeyPrefix;
+
+	public QueryRadiusRequest(GeoPoint centerPoint, double radiusInMeter, String hashKeyPrefix) {
 		this.centerPoint = centerPoint;
 		this.radiusInMeter = radiusInMeter;
+		this.hashKeyPrefix = hashKeyPrefix;
+	}
+
+	public QueryRadiusRequest(GeoPoint centerPoint, double radiusInMeter) {
+		this(centerPoint, radiusInMeter, null);
 	}
 
 	public GeoPoint getCenterPoint() {
@@ -30,5 +37,9 @@ public class QueryRadiusRequest extends GeoQueryRequest {
 
 	public double getRadiusInMeter() {
 		return radiusInMeter;
+	}
+
+	public String getHashKeyPrefix() {
+		return hashKeyPrefix;
 	}
 }

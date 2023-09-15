@@ -35,6 +35,10 @@ public class DynamoDBManager {
 		this.config = config;
 	}
 
+	public List<QueryResponse> queryGeohash(long hashKey, GeohashRange range) {
+		return queryGeohash(hashKey, range, null);
+	}
+
 	/**
 	 * Query Amazon DynamoDB
 	 *
@@ -43,10 +47,11 @@ public class DynamoDBManager {
 	 *
 	 * @param range
 	 *            The range of geohashs to query.
+	 * @param hashKeyPrefix hash key prefix (nullable)
 	 *
 	 * @return The query result.
 	 */
-	public List<QueryResponse> queryGeohash(long hashKey, GeohashRange range) {
+	public List<QueryResponse> queryGeohash(long hashKey, GeohashRange range, String hashKeyPrefix) {
 		List<QueryResponse> queryResults = new ArrayList<>();
 		Map<String, AttributeValue> lastEvaluatedKey = null;
 
@@ -54,7 +59,10 @@ public class DynamoDBManager {
 			Map<String, Condition> keyConditions = new HashMap<>();
 
 			Condition hashKeyCondition = Condition.builder().comparisonOperator(ComparisonOperator.EQ)
-					.attributeValueList(AttributeValue.fromN(String.valueOf(hashKey))).build();
+					.attributeValueList(hashKeyPrefix == null ?
+							AttributeValue.fromN(String.valueOf(hashKey)) :
+							AttributeValue.fromS(hashKeyPrefix + hashKey)
+					).build();
 			keyConditions.put(config.getHashKeyAttributeName(), hashKeyCondition);
 
 			AttributeValue minRange = AttributeValue.fromN(Long.toString(range.getRangeMin()));
@@ -91,7 +99,10 @@ public class DynamoDBManager {
 		AttributeValue hashKeyValue = AttributeValue.fromN(String.valueOf(hashKey));
 		item.put(config.getHashKeyAttributeName(), hashKeyValue);
 		item.put(config.getRangeKeyAttributeName(), putPointRequest.getRangeKeyValue());
-		AttributeValue geohashValue = AttributeValue.fromN(Long.toString(geohash));
+		final String geoHashPrefix = putPointRequest.getHashKeyPrefix();
+		AttributeValue geohashValue = geoHashPrefix == null ?
+				AttributeValue.fromN(Long.toString(geohash)) :
+				AttributeValue.fromS(geoHashPrefix + geohash);
 		item.put(config.getGeohashAttributeName(), geohashValue);
 		AttributeValue geoJsonValue = AttributeValue.fromS(geoJson);
 		item.put(config.getGeoJsonAttributeName(), geoJsonValue);
