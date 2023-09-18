@@ -19,7 +19,6 @@ import com.amazonaws.geo.dynamodb.internal.DynamoDBManager;
 import com.amazonaws.geo.model.*;
 import com.amazonaws.geo.s2.internal.S2Manager;
 import com.amazonaws.geo.s2.internal.S2Util;
-import com.amazonaws.geo.util.GeoJsonMapper;
 import com.google.common.geometry.S2CellId;
 import com.google.common.geometry.S2CellUnion;
 import com.google.common.geometry.S2LatLng;
@@ -239,10 +238,10 @@ public class GeoDataManager {
 		}
 
 		for (Map<String, AttributeValue> item : list) {
-			String geoJson = item.get(config.getGeoJsonAttributeName()).s();
-			GeoPoint geoPoint = GeoJsonMapper.geoPointFromString(geoJson);
+			double latitude = Double.parseDouble(item.get(config.getLatitudeAttributeName()).n());
+			double longitude = Double.parseDouble(item.get(config.getLongitudeAttributeName()).n());
 
-			S2LatLng latLng = S2LatLng.fromDegrees(geoPoint.getLatitude(), geoPoint.getLongitude());
+			S2LatLng latLng = S2LatLng.fromDegrees(latitude, longitude);
 			if (latLngRect != null && latLngRect.contains(latLng)) {
 				result.add(item);
 			} else if (centerLatLng != null && radiusInMeter > 0
