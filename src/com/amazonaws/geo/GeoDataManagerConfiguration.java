@@ -29,7 +29,8 @@ public class GeoDataManagerConfiguration {
 	private static final String DEFAULT_HASHKEY_ATTRIBUTE_NAME = "hashKey";
 	private static final String DEFAULT_RANGEKEY_ATTRIBUTE_NAME = "rangeKey";
 	private static final String DEFAULT_GEOHASH_ATTRIBUTE_NAME = "geohash";
-	private static final String DEFAULT_GEOJSON_ATTRIBUTE_NAME = "geoJson";
+	private static final String DEFAULT_LATITUDE_ATTRIBUTE_NAME = "lat";
+	private static final String DEFAULT_LONGITUDE_ATTRIBUTE_NAME = "lng";
 
 	private static final String DEFAULT_GEOHASH_INDEX_ATTRIBUTE_NAME = "geohash-index";
 
@@ -43,7 +44,8 @@ public class GeoDataManagerConfiguration {
 	private String hashKeyAttributeName;
 	private String rangeKeyAttributeName;
 	private String geohashAttributeName;
-	private String geoJsonAttributeName;
+	private String latitudeAttributeName;
+	private String longitudeAttributeName;
 
 	private String geohashIndexName;
 
@@ -57,7 +59,8 @@ public class GeoDataManagerConfiguration {
 		hashKeyAttributeName = DEFAULT_HASHKEY_ATTRIBUTE_NAME;
 		rangeKeyAttributeName = DEFAULT_RANGEKEY_ATTRIBUTE_NAME;
 		geohashAttributeName = DEFAULT_GEOHASH_ATTRIBUTE_NAME;
-		geoJsonAttributeName = DEFAULT_GEOJSON_ATTRIBUTE_NAME;
+		latitudeAttributeName = DEFAULT_LATITUDE_ATTRIBUTE_NAME;
+		longitudeAttributeName = DEFAULT_LONGITUDE_ATTRIBUTE_NAME;
 
 		geohashIndexName = DEFAULT_GEOHASH_INDEX_ATTRIBUTE_NAME;
 
@@ -114,16 +117,29 @@ public class GeoDataManagerConfiguration {
 		return this;
 	}
 
-	public String getGeoJsonAttributeName() {
-		return geoJsonAttributeName;
+	public String getLatitudeAttributeName() {
+		return latitudeAttributeName;
 	}
 
-	public void setGeoJsonAttributeName(String geoJsonAttributeName) {
-		this.geoJsonAttributeName = geoJsonAttributeName;
+	public void setLatitudeAttributeName(String latitudeAttributeName) {
+		this.latitudeAttributeName = latitudeAttributeName;
 	}
 
-	public GeoDataManagerConfiguration withGeoJsonAttributeName(String geoJsonAttributeName) {
-		setGeoJsonAttributeName(geoJsonAttributeName);
+	public String getLongitudeAttributeName() {
+		return longitudeAttributeName;
+	}
+
+	public void setLongitudeAttributeName(String longitudeAttributeName) {
+		this.longitudeAttributeName = longitudeAttributeName;
+	}
+
+	public GeoDataManagerConfiguration withLatitudeAttributeName(String latitudeAttributeName) {
+		setLatitudeAttributeName(latitudeAttributeName);
+		return this;
+	}
+
+	public GeoDataManagerConfiguration withLongitudeAttributeName(String longitudeAttributeName) {
+		setLongitudeAttributeName(longitudeAttributeName);
 		return this;
 	}
 
