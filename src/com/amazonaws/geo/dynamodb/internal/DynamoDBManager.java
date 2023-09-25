@@ -112,7 +112,7 @@ public class DynamoDBManager {
 	}
 
 	private static AttributeValue getHashKeyAttributeValue(long hashKey, String hashKeyPrefix) {
-		return hashKeyPrefix == null ? AttributeValue.fromS(String.valueOf(hashKey)) :
+		return hashKeyPrefix == null ? AttributeValue.fromN(String.valueOf(hashKey)) :
 				AttributeValue.fromS(hashKeyPrefix + hashKey);
 	}
 }
