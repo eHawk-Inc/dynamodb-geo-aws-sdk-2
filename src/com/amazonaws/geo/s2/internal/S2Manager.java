@@ -108,7 +108,7 @@ public class S2Manager {
 		} else if (children.size() == 4) {
 			cellIds.add(parent);
 		} else {
-			assert false; // This should not happen.
+			throw new RuntimeException("children.size() is "+children.size());
 		}
 	}
 
