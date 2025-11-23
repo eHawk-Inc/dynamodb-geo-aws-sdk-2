@@ -30,7 +30,7 @@ import java.util.*
 /**
  *
  *
- * Manager to hangle geo spatial data in Amazon DynamoDB tables. All service calls made using this client are blocking,
+ * Manager to handle geo spatial data in Amazon DynamoDB tables. All service calls made using this client are blocking,
  * and will not return until the service call completes.
  *
  *

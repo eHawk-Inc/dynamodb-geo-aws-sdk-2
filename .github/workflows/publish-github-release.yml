@@ -42,7 +42,7 @@ jobs:
           output=$($command 2>&1)
           status=$?
           set -e
-          if [ $status == "0" ]; then
+          if [ $status -eq 0 ]; then
             echo "Published successfully $output"
           else
               if [[ $output == *"409"* && $output == *"Conflict"* ]]; then
