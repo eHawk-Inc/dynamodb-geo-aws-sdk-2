@@ -42,4 +42,13 @@ public class QueryRadiusRequest extends GeoQueryRequest {
 	public String getHashKeyPrefix() {
 		return hashKeyPrefix;
 	}
+
+    @Override
+    public String toString() {
+        return "QueryRadiusRequest{" +
+                "centerPoint=" + centerPoint +
+                ", radiusInMeter=" + radiusInMeter +
+                ", hashKeyPrefix='" + hashKeyPrefix + '\'' +
+                '}';
+    }
 }
