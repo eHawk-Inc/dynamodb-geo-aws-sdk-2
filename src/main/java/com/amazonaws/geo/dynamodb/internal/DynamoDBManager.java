@@ -70,8 +70,14 @@ public class DynamoDBManager {
 			keyConditions.put(config.getGeohashAttributeName(), geohashCondition);
 
 			Map<String, AttributeValue> finalLastEvaluatedKey = lastEvaluatedKey;
+			/*
+			 * Reads are left eventually consistent, which halves the read capacity a geohash
+			 * range query consumes on a local secondary index. A point that was written moments
+			 * ago may be missing from the result, so callers must treat a query as a lookup that
+			 * may miss rather than as read-after-write.
+			 */
 			QueryRequest queryRequest = QueryRequest.builder().tableName(config.getTableName()).keyConditions(keyConditions)
-					.indexName(config.getGeohashIndexName()).consistentRead(true)
+					.indexName(config.getGeohashIndexName())
 					.returnConsumedCapacity(ReturnConsumedCapacity.TOTAL).exclusiveStartKey(finalLastEvaluatedKey).build();
 
 			QueryResponse queryResult = config.getDynamoDBClient().query(queryRequest);
